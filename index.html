@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Student Photo Formatter</title>
+<style>
+:root{--bg:#f3f4f6;--card:#fff;--ink:#14171c;--mute:#5d6672;--line:#d5d9df;--acc:#1d4ed8;--ok:#15803d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101216;--card:#1a1d23;--ink:#eef0f3;--mute:#9aa3ae;--line:#2c313a;--acc:#6b93ff;--ok:#4ade80}}
+:root[data-theme="dark"]{--bg:#101216;--card:#1a1d23;--ink:#eef0f3;--mute:#9aa3ae;--line:#2c313a;--acc:#6b93ff;--ok:#4ade80}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 80px}
+h1{font-size:1.5rem;margin:0 0 4px}
+p.sub{margin:0 0 16px;color:var(--mute)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 14px;border-radius:8px;cursor:pointer;min-height:44px}
+button.pri,.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+button:focus-visible,input:focus-visible,label.btn:focus-within{outline:3px solid var(--acc);outline-offset:2px}
+input[type=text],input[type=date]{font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-height:44px}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:28px 16px;text-align:center;color:var(--mute);margin-bottom:16px;background:var(--card)}
+.drop.on{border-color:var(--acc);color:var(--ink)}
+.item{display:grid;grid-template-columns:200px 1fr;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.cv{position:relative;width:200px}
+.cv canvas{width:100%;height:auto;border:1px solid var(--line);display:block;background:#fff;touch-action:none;cursor:grab;user-select:none}
+.cv canvas:active{cursor:grabbing}
+.tick{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;background:var(--ok);color:#fff;display:none;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.item.done .tick{display:flex}
+.item.done{border-color:var(--ok)}
+.zoom{display:flex;gap:6px;margin-top:8px;justify-content:center}
+.zoom button{min-width:44px;padding:8px 12px;font-size:1.1rem;line-height:1}
+.f{display:grid;gap:10px;align-content:start}
+.f label{display:grid;gap:4px;font-size:.85rem;color:var(--mute)}
+.hint{font-size:.8rem;color:var(--mute);margin:0}
+.f label.chk,label.chk{display:flex;flex-direction:row;gap:8px;align-items:center;color:var(--ink);font-size:1rem;min-height:32px}
+.chk input{width:20px;height:20px;margin:0}
+.bgst{font-size:.85rem;color:var(--mute);min-height:1.2em}
+.act{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.st{color:var(--ok);font-size:.9rem;display:none}
+.item.done .st{display:inline}
+.cnt{color:var(--mute)}
+@media (max-width:560px){.item{grid-template-columns:1fr}.cv{width:min(240px,100%);margin:0 auto}}
+</style>
+</head>
+<body>
+<main>
+<h1>Student photo formatter</h1>
+<p class="sub">Black &amp; white, 3:4 crop, name and date printed underneath. Everything runs in your browser; no photo is uploaded anywhere.</p>
+
+<div class="bar">
+  <label class="btn pri">Add photos<input id="file" type="file" accept="image/*" multiple hidden></label>
+  <label style="display:flex;gap:8px;align-items:center">Default date <input id="defDate" type="date" style="width:auto"></label>
+  <button id="applyDate" type="button">Apply to all</button>
+  <label class="chk"><input type="checkbox" id="bgAll"> Remove background for all</label>
+  <button id="zipAll" type="button" class="pri">Download all (ZIP)</button>
+  <button id="dlAll" type="button">Download separately</button>
+  <button id="clear" type="button">Clear</button>
+  <span class="cnt" id="cnt"></span>
+</div>
+
+<div class="drop" id="drop">Drop colour photos here, or use Add photos. Select as many as you want.</div>
+<div id="list"></div>
+</main>
+
+<script>
+const W=900,PH=1200,BH=190,H=PH+BH,MAXZ=6;
+const $=s=>document.querySelector(s);
+const list=$('#list'),defDate=$('#defDate');
+const items=[];
+const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+defDate.value=today();
+const fmt=iso=>{const [y,m,d]=iso.split('-');return `${d}-${m}-${y}`};
+
+function geom(it){
+  const im=it.img,base=Math.min(im.width,im.height*3/4),cw=base/it.zoom,ch=cw*4/3;
+  it.cx=Math.max(cw/2/im.width,Math.min(1-cw/2/im.width,it.cx));
+  it.cy=Math.max(ch/2/im.height,Math.min(1-ch/2/im.height,it.cy));
+  return {cw,ch,sx:it.cx*im.width-cw/2,sy:it.cy*im.height-ch/2};
+}
+
+function render(it){
+  const c=it.canvas,x=c.getContext('2d');
+  if(c.width!==W){c.width=W;c.height=H}
+  const g=geom(it);
+  x.fillStyle='#fff';x.fillRect(0,0,W,PH);
+  const src=(it.bg&&it.cut)?it.cut:it.img,s=src.width/it.img.width;
+  x.drawImage(src,g.sx*s,g.sy*s,g.cw*s,g.ch*s,0,0,W,PH);
+  const d=x.getImageData(0,0,W,PH),p=d.data;
+  for(let i=0;i<p.length;i+=4){const v=.299*p[i]+.587*p[i+1]+.114*p[i+2];p[i]=p[i+1]=p[i+2]=v}
+  x.putImageData(d,0,0);
+  x.fillStyle='#000';x.fillRect(0,PH,W,BH);
+  x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';
+  const name=it.name.trim();
+  if(name){
+    let fs=72;x.font=`${fs}px Helvetica,Arial,sans-serif`;
+    while(x.measureText(name).width>W-60&&fs>24){fs-=2;x.font=`${fs}px Helvetica,Arial,sans-serif`}
+    x.fillText(name,W/2,PH+BH*.33);
+  }
+  x.font='72px Helvetica,Arial,sans-serif';
+  x.fillText(fmt(it.date),W/2,PH+BH*.75);
+}
+function changed(it){it.el.classList.remove('done');render(it)}
+function markDone(it){it.el.classList.add('done')}
+
+function card(it){
+  const el=document.createElement('div');el.className='item';
+  el.innerHTML=`<div class="cv">
+    <canvas aria-label="Photo preview. Drag to move, pinch or scroll to zoom."></canvas>
+    <span class="tick" title="Downloaded"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+    <div class="zoom"><button type="button" class="zo" aria-label="Zoom out">&minus;</button><button type="button" class="zi" aria-label="Zoom in">+</button><button type="button" class="rs" aria-label="Reset crop">Reset</button></div>
+  </div>
+  <div class="f">
+    <label>Student name<input type="text" class="n" placeholder="Enter name" autocomplete="off"></label>
+    <label>Date photo was taken<input type="date" class="d"></label>
+    <label class="chk"><input type="checkbox" class="bg"> Remove background (set to white)</label>
+    <span class="bgst"></span>
+    <p class="hint">Drag the photo to reposition. Pinch, scroll, or use + / &minus; to zoom.</p>
+    <div class="act"><button type="button" class="pri dl">Download</button><button type="button" class="rm">Remove</button><span class="st">&#10003; Downloaded</span></div>
+  </div>`;
+  it.el=el;it.canvas=el.querySelector('canvas');
+  const n=el.querySelector('.n'),d=el.querySelector('.d');
+  n.value='';d.value=it.date;
+  n.oninput=()=>{it.name=n.value;changed(it)};
+  d.oninput=()=>{it.date=d.value||today();changed(it)};
+  it.bgc=el.querySelector('.bg');it.bgst=el.querySelector('.bgst');
+  it.bgc.onchange=()=>setBg(it,it.bgc.checked);
+  const zoomBy=f=>{it.zoom=Math.max(1,Math.min(MAXZ,it.zoom*f));changed(it)};
+  el.querySelector('.zi').onclick=()=>zoomBy(1.2);
+  el.querySelector('.zo').onclick=()=>zoomBy(1/1.2);
+  el.querySelector('.rs').onclick=()=>{it.zoom=1;it.cx=it.cx0;it.cy=it.cy0;changed(it)};
+  el.querySelector('.dl').onclick=()=>save(it);
+  el.querySelector('.rm').onclick=()=>{items.splice(items.indexOf(it),1);el.remove();count()};
+
+  // drag + pinch
+  const c=it.canvas,ptr=new Map();let pd=0;
+  c.addEventListener('pointerdown',e=>{c.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);pd=0});
+  c.addEventListener('pointermove',e=>{
+    if(!ptr.has(e.pointerId))return;
+    const prev=ptr.get(e.pointerId);
+    if(ptr.size===1){
+      const g=geom(it),k=g.cw/(c.getBoundingClientRect().width);
+      it.cx-=(e.clientX-prev[0])*k/it.img.width;
+      it.cy-=(e.clientY-prev[1])*k/it.img.height;
+      ptr.set(e.pointerId,[e.clientX,e.clientY]);changed(it);
+    }else if(ptr.size===2){
+      ptr.set(e.pointerId,[e.clientX,e.clientY]);
+      const [a,b]=[...ptr.values()],dist=Math.hypot(a[0]-b[0],a[1]-b[1]);
+      if(pd>0){it.zoom=Math.max(1,Math.min(MAXZ,it.zoom*dist/pd));changed(it)}
+      pd=dist;
+    }
+  });
+  const up=e=>{ptr.delete(e.pointerId);pd=0};
+  c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);
+  c.addEventListener('wheel',e=>{e.preventDefault();zoomBy(Math.exp(-e.deltaY*.0015))},{passive:false});
+
+  list.appendChild(el);render(it);
+}
+
+// ---- background removal (MODNet via Transformers.js; no API key, model downloads once) ----
+let bgPipe=null,bgQueue=Promise.resolve();
+function loadBg(){
+  if(!bgPipe)bgPipe=(async()=>{
+    const T=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3');
+    const model=await T.AutoModel.from_pretrained('Xenova/modnet',{dtype:'fp32'});
+    const processor=await T.AutoProcessor.from_pretrained('Xenova/modnet');
+    return {T,model,processor};
+  })().catch(e=>{bgPipe=null;throw e});
+  return bgPipe;
+}
+async function doCut(it){
+  if(it.cut)return;
+  const {T,model,processor}=await loadBg();
+  const im=it.img;
+  // small copy for the model
+  const k=Math.min(1,1024/Math.max(im.width,im.height)),mw=Math.round(im.width*k),mh=Math.round(im.height*k);
+  const sc=document.createElement('canvas');sc.width=mw;sc.height=mh;
+  const sx=sc.getContext('2d');sx.drawImage(im,0,0,mw,mh);
+  const raw=new T.RawImage(sx.getImageData(0,0,mw,mh).data,mw,mh,4).rgb();
+  const {pixel_values}=await processor(raw);
+  const {output}=await model({input:pixel_values});
+  const mask=await T.RawImage.fromTensor(output[0].mul(255).to('uint8')).resize(mw,mh);
+  // mask -> alpha canvas (firm up faint noise at the extremes)
+  const mc=document.createElement('canvas');mc.width=mw;mc.height=mh;
+  const mx=mc.getContext('2d'),md=mx.createImageData(mw,mh);
+  for(let i=0;i<mw*mh;i++){const m=mask.data[i];md.data[i*4]=md.data[i*4+1]=md.data[i*4+2]=255;md.data[i*4+3]=m<30?0:m>225?255:m}
+  mx.putImageData(md,0,0);
+  // cut-out at up to 2000px, background transparent
+  const f=Math.min(1,2000/Math.max(im.width,im.height)),cw=Math.round(im.width*f),ch=Math.round(im.height*f);
+  const cc=document.createElement('canvas');cc.width=cw;cc.height=ch;
+  const cx=cc.getContext('2d');cx.drawImage(im,0,0,cw,ch);
+  cx.globalCompositeOperation='destination-in';cx.drawImage(mc,0,0,cw,ch);
+  it.cut=cc;
+}
+function makeCut(it){const p=bgQueue.then(()=>doCut(it));bgQueue=p.catch(()=>{});return p}
+async function setBg(it,on){
+  it.bg=on;it.bgc.checked=on;
+  if(!on){it.bgst.textContent='';changed(it);return}
+  if(!it.cut){
+    it.bgst.textContent=bgPipe?'Removing background…':'Loading background model. First time can take a minute…';
+    try{await makeCut(it);it.bgst.textContent=''}
+    catch(e){console.error(e);it.bg=false;it.bgc.checked=false;it.bgst.textContent='Background removal failed. Check your internet connection and try again.'}
+  }
+  changed(it);
+}
+
+const blobOf=it=>new Promise(r=>it.canvas.toBlob(r,'image/jpeg',.95));
+const cleanName=it=>(it.name.trim().replace(/[\\\/:*?"<>|]+/g,'').replace(/\s+/g,' ').trim()||'student');
+function dl(blob,name){
+  const a=document.createElement('a');a.download=name;a.href=URL.createObjectURL(blob);
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+async function save(it){dl(await blobOf(it),cleanName(it)+'.jpg');markDone(it)}
+const count=()=>{$('#cnt').textContent=items.length?items.length+' photo'+(items.length>1?'s':''):''};
+
+// minimal ZIP writer (store, no compression: JPEGs are already compressed)
+const crcT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc32=u=>{let c=~0;for(let i=0;i<u.length;i++)c=crcT[(c^u[i])&255]^(c>>>8);return ~c>>>0};
+function makeZip(files){
+  const enc=new TextEncoder(),now=new Date();
+  const dt=((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate();
+  const tm=(now.getHours()<<11)|(now.getMinutes()<<5)|(now.getSeconds()>>1);
+  const parts=[],cd=[];let off=0;
+  for(const f of files){
+    const nm=enc.encode(f.name),crc=crc32(f.data),sz=f.data.length;
+    const lh=new DataView(new ArrayBuffer(30));
+    lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(8,0,true);
+    lh.setUint16(10,tm,true);lh.setUint16(12,dt,true);lh.setUint32(14,crc,true);lh.setUint32(18,sz,true);lh.setUint32(22,sz,true);
+    lh.setUint16(26,nm.length,true);lh.setUint16(28,0,true);
+    parts.push(lh.buffer,nm,f.data);
+    const ch=new DataView(new ArrayBuffer(46));
+    ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,0x0800,true);ch.setUint16(10,0,true);
+    ch.setUint16(12,tm,true);ch.setUint16(14,dt,true);ch.setUint32(16,crc,true);ch.setUint32(20,sz,true);ch.setUint32(24,sz,true);
+    ch.setUint16(28,nm.length,true);ch.setUint32(42,off,true);
+    cd.push(ch.buffer,nm);
+    off+=30+nm.length+sz;
+  }
+  let cds=0;cd.forEach(b=>cds+=b.byteLength);
+  const end=new DataView(new ArrayBuffer(22));
+  end.setUint32(0,0x06054b50,true);end.setUint16(8,files.length,true);end.setUint16(10,files.length,true);
+  end.setUint32(12,cds,true);end.setUint32(16,off,true);
+  return new Blob([...parts,...cd,end.buffer],{type:'application/zip'});
+}
+$('#zipAll').onclick=async()=>{
+  if(!items.length)return;
+  const used={},files=[];
+  for(const it of items){
+    let base=cleanName(it),nm=base,i=1;
+    while(used[nm.toLowerCase()])nm=`${base} (${i++})`;
+    used[nm.toLowerCase()]=1;
+    files.push({name:nm+'.jpg',data:new Uint8Array(await (await blobOf(it)).arrayBuffer())});
+  }
+  dl(makeZip(files),'Student Photos.zip');
+  items.forEach(markDone);
+};
+$('#dlAll').onclick=async()=>{for(const it of items){await save(it);await new Promise(r=>setTimeout(r,350))}};
+
+async function addFiles(files){
+  for(const f of files){
+    if(!f.type.startsWith('image/'))continue;
+    const url=URL.createObjectURL(f),img=new Image();
+    try{await new Promise((r,j)=>{img.onload=r;img.onerror=j;img.src=url})}catch(e){continue}
+    const it={img,name:'',date:defDate.value||today(),zoom:1,cx:.5,cy:.42};
+    try{
+      if('FaceDetector' in window){
+        const fs=await new FaceDetector({fastMode:true}).detect(img);
+        if(fs.length){const b=fs.sort((a,b)=>b.boundingBox.width-a.boundingBox.width)[0].boundingBox;
+          it.cx=(b.x+b.width/2)/img.width;it.cy=(b.y+b.height/2)/img.height+.04}
+      }
+    }catch(e){}
+    it.cx0=it.cx;it.cy0=it.cy;
+    items.push(it);card(it);
+    if($('#bgAll').checked)setBg(it,true);
+  }
+  count();
+}
+
+$('#file').onchange=e=>{addFiles([...e.target.files]);e.target.value=''};
+const drop=$('#drop');
+['dragover','dragenter'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('on')}));
+['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('on')}));
+drop.addEventListener('drop',e=>addFiles([...e.dataTransfer.files]));
+$('#applyDate').onclick=()=>items.forEach(it=>{it.date=defDate.value||today();it.el.querySelector('.d').value=it.date;changed(it)});
+$('#bgAll').onchange=e=>items.forEach(it=>setBg(it,e.target.checked));
+$('#clear').onclick=()=>{if(items.length&&confirm('Remove all photos?')){items.length=0;list.innerHTML='';count()}};
+</script>
+</body>
+</html>
