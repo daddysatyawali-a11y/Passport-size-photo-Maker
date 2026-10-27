@@ -1,287 +1,375 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Student Photo Formatter</title>
+<title>Call Break score pad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f3f4f6;--card:#fff;--ink:#14171c;--mute:#5d6672;--line:#d5d9df;--acc:#1d4ed8;--ok:#15803d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101216;--card:#1a1d23;--ink:#eef0f3;--mute:#9aa3ae;--line:#2c313a;--acc:#6b93ff;--ok:#4ade80}}
-:root[data-theme="dark"]{--bg:#101216;--card:#1a1d23;--ink:#eef0f3;--mute:#9aa3ae;--line:#2c313a;--acc:#6b93ff;--ok:#4ade80}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-main{max-width:860px;margin:0 auto;padding:20px 16px 80px}
-h1{font-size:1.5rem;margin:0 0 4px}
-p.sub{margin:0 0 16px;color:var(--mute)}
-.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
-button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 14px;border-radius:8px;cursor:pointer;min-height:44px}
-button.pri,.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
-button:focus-visible,input:focus-visible,label.btn:focus-within{outline:3px solid var(--acc);outline-offset:2px}
-input[type=text],input[type=date]{font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-height:44px}
-.drop{border:2px dashed var(--line);border-radius:12px;padding:28px 16px;text-align:center;color:var(--mute);margin-bottom:16px;background:var(--card)}
-.drop.on{border-color:var(--acc);color:var(--ink)}
-.item{display:grid;grid-template-columns:200px 1fr;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
-.cv{position:relative;width:200px}
-.cv canvas{width:100%;height:auto;border:1px solid var(--line);display:block;background:#fff;touch-action:none;cursor:grab;user-select:none}
-.cv canvas:active{cursor:grabbing}
-.tick{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;background:var(--ok);color:#fff;display:none;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.4)}
-.item.done .tick{display:flex}
-.item.done{border-color:var(--ok)}
-.zoom{display:flex;gap:6px;margin-top:8px;justify-content:center}
-.zoom button{min-width:44px;padding:8px 12px;font-size:1.1rem;line-height:1}
-.f{display:grid;gap:10px;align-content:start}
-.f label{display:grid;gap:4px;font-size:.85rem;color:var(--mute)}
-.hint{font-size:.8rem;color:var(--mute);margin:0}
-.f label.chk,label.chk{display:flex;flex-direction:row;gap:8px;align-items:center;color:var(--ink);font-size:1rem;min-height:32px}
-.chk input{width:20px;height:20px;margin:0}
-.bgst{font-size:.85rem;color:var(--mute);min-height:1.2em}
-.act{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.st{color:var(--ok);font-size:.9rem;display:none}
-.item.done .st{display:inline}
-.cnt{color:var(--mute)}
-@media (max-width:560px){.item{grid-template-columns:1fr}.cv{width:min(240px,100%);margin:0 auto}}
-</style>
-</head>
-<body>
-<main>
-<h1>Student photo formatter</h1>
-<p class="sub">Black &amp; white, 3:4 crop, name and date printed underneath. Everything runs in your browser; no photo is uploaded anywhere.</p>
-
-<div class="bar">
-  <label class="btn pri">Add photos<input id="file" type="file" accept="image/*" multiple hidden></label>
-  <label style="display:flex;gap:8px;align-items:center">Default date <input id="defDate" type="date" style="width:auto"></label>
-  <button id="applyDate" type="button">Apply to all</button>
-  <label class="chk"><input type="checkbox" id="bgAll"> Remove background for all</label>
-  <button id="zipAll" type="button" class="pri">Download all (ZIP)</button>
-  <button id="dlAll" type="button">Download separately</button>
-  <button id="clear" type="button">Clear</button>
-  <span class="cnt" id="cnt"></span>
-</div>
-
-<div class="drop" id="drop">Drop colour photos here, or use Add photos. Select as many as you want.</div>
-<div id="list"></div>
-</main>
-
+:root{--bg:#eef1f5;--panel:#fff;--ink:#0e1726;--mute:#5b6577;--line:#d5dbe5;--acc:#1d4ed8;--onacc:#fff;--win:#0f7a55;--lose:#c62f45;--tint:#e3e9f3;--gold:#d9a400;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1320;--panel:#131e30;--ink:#eef2f8;--mute:#93a0b6;--line:#26334a;--acc:#8fb0ff;--onacc:#0b1320;--win:#3ddc97;--lose:#ff7088;--tint:#1b2a43;--gold:#f5c542}}
+:root[data-theme="dark"]{--bg:#0b1320;--panel:#131e30;--ink:#eef2f8;--mute:#93a0b6;--line:#26334a;--acc:#8fb0ff;--onacc:#0b1320;--win:#3ddc97;--lose:#ff7088;--tint:#1b2a43;--gold:#f5c542}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "DM Sans","Noto Sans Devanagari",system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;min-height:44px;padding:0 14px;font-weight:600}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button:disabled{opacity:.4;cursor:not-allowed}
+.wrap{max-width:480px;margin:0 auto;padding:18px 16px 132px}
+.serif{font-family:Fraunces,Georgia,"Times New Roman",serif;font-weight:700;font-variant-numeric:lining-nums}
+h1{font-size:50px;line-height:1.02;margin:22px 0 8px;letter-spacing:-.02em}
+.sub{color:var(--mute);margin:0 0 26px}
+.lab{font-weight:600;margin:0 0 8px;display:block}
+.stp{display:inline-flex;align-items:center;gap:6px;background:var(--tint);border-radius:14px;padding:4px}
+.stp button{width:44px;padding:0;font-size:22px;border:0;background:var(--panel)}
+.stp .bid{min-width:44px;text-align:center;font-size:30px;line-height:1}
+.field{margin-bottom:20px}
+.sw{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;background:var(--panel);border:1.5px solid var(--line);margin-bottom:18px;font-weight:600}
+.sw input{width:22px;height:22px;accent-color:var(--acc)}
+.sw small{display:block;font-weight:400;color:var(--mute)}
+.names{display:grid;gap:8px;margin-bottom:20px}
+.nrow{display:grid;grid-template-columns:1fr;gap:8px}
+.nrow.sc{grid-template-columns:1fr 104px}
+.names input,.field input{width:100%;min-height:48px;padding:0 14px;background:var(--panel);border:1.5px solid var(--line);border-radius:12px}
+.hd{display:grid;grid-template-columns:1fr 104px;gap:8px;font-size:13px;color:var(--mute);margin-bottom:-2px}
+.cta{width:100%;min-height:56px;font-size:18px;background:var(--ink);color:var(--bg);border-color:var(--ink);border-radius:14px}
+.bar{display:flex;justify-content:space-between;align-items:flex-end;margin:6px 0 16px}
+.bar h2{margin:0;font-size:40px;line-height:1;letter-spacing:-.02em}
+.bar small{display:block;color:var(--mute);margin-top:4px}
+.rows{display:grid;gap:10px;position:relative}
+.row{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel);border:1.5px solid var(--line);border-radius:16px;padding:10px 10px 10px 12px}
+.row.won{border-color:var(--win);box-shadow:inset 4px 0 0 var(--win)}
+.row.lost{border-color:var(--lose);box-shadow:inset 4px 0 0 var(--lose)}
+.g1,.hl1{--hc:#d9a400}.g2,.hl2{--hc:#9aa5b8}.g3,.hl3{--hc:#c07a3a}
+.row.hl1,.row.hl2,.row.hl3{border-color:var(--hc);background:linear-gradient(100deg,color-mix(in srgb,var(--hc) 24%,var(--panel)),var(--panel) 75%);box-shadow:0 0 0 2px color-mix(in srgb,var(--hc) 30%,transparent),0 6px 20px color-mix(in srgb,var(--hc) 24%,transparent)}
+.rk.g1,.rk.g2,.rk.g3,.hl1 .rk,.hl2 .rk,.hl3 .rk{background:var(--hc);color:#231a00}
+.row.won{border-color:var(--win);box-shadow:inset 4px 0 0 var(--win)}
+.row.lost{border-color:var(--lose);box-shadow:inset 4px 0 0 var(--lose)}
+.row.rise{animation:rise 1.8s ease-out}
+.row.fall{animation:fall 1.8s ease-out}
+@keyframes rise{0%,35%{box-shadow:0 0 0 3px var(--win),0 8px 24px color-mix(in srgb,var(--win) 45%,transparent)}100%{}}
+@keyframes fall{0%,35%{box-shadow:0 0 0 3px var(--lose),0 8px 24px color-mix(in srgb,var(--lose) 40%,transparent)}100%{}}
+.who{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.rk{flex:none;width:26px;height:26px;border-radius:50%;background:var(--tint);display:grid;place-items:center;font-size:13px;font-weight:700}
+.nl{display:flex;align-items:center;gap:6px;min-width:0}
+.nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crown{font-size:15px;animation:wob 2.4s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg) translateY(-2px)}}
+.mv{flex:none;font-size:12px;font-weight:700;padding:1px 7px;border-radius:99px;color:#fff;animation:pop .7s cubic-bezier(.3,1.6,.5,1) .5s backwards}
+.mv.u{background:var(--win)}.mv.d{background:var(--lose)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.tot{font-size:26px;line-height:1.1}
+.tot .d{font-family:"DM Sans",system-ui,sans-serif;font-size:15px;font-weight:700;margin-left:6px}
+.pos{color:var(--win)}.neg{color:var(--lose)}
+.row .stp{flex:none}
+.res{display:flex;align-items:center;gap:8px;flex:none}
+.res .bid{font-size:30px;min-width:30px;text-align:center}
+.seg{display:flex;border-radius:12px;overflow:hidden;border:1.5px solid var(--line)}
+.seg button{border:0;border-radius:0;min-height:44px;padding:0 12px;background:var(--panel)}
+.seg .w.on{background:var(--win);color:#fff}
+.seg .lo.on{background:var(--lose);color:#fff}
+.mode button{flex:1}
+.mode .on{background:var(--acc);color:var(--onacc)}
+.dock{flex:none;padding-top:10px}
+.dock>div{display:grid;grid-template-columns:auto 1fr;gap:10px}
+.dock .cta{grid-column:1/-1}
+.dock.two .cta{grid-column:auto}
+.sheet{position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);overflow-y:auto;z-index:20;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.sheet .wrap{padding-bottom:32px}
+.hit{z-index:25}
+.hit .wrap{text-align:center;padding-top:36px}
+.hit h2{font-size:38px;line-height:1.1;margin:6px 0 6px;letter-spacing:-.02em}
+.hit .sub{margin-bottom:22px}
+.hit input{text-align:center;font-size:22px;font-weight:700}
+.hit button+button,.hit input+button{margin-top:8px;width:100%}
+.hit .err{color:var(--lose);font-size:14px;margin:6px 0 0}
+.trophy{font-size:72px;line-height:1;animation:bounce 1.2s cubic-bezier(.3,1.5,.5,1)}
+@keyframes bounce{from{transform:scale(0) rotate(-30deg)}to{transform:scale(1) rotate(0)}}
+.shead{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.shead h2{margin:0;font-size:34px;line-height:1.05;letter-spacing:-.02em}
+.win-box{background:var(--ink);color:var(--bg);border-radius:16px;padding:16px 18px;margin-bottom:18px}
+.win-box .serif{font-size:34px;line-height:1.1}
+.win-box div+div{opacity:.75;margin-top:4px}
+h3{margin:22px 0 8px;font-size:15px}
+.tbl{flex:1;min-height:0;overflow:auto;background:var(--panel);border:1.5px solid var(--line);border-radius:14px}
+table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;text-align:center;white-space:nowrap;border-bottom:1px solid var(--line);font-weight:600}
+th{position:sticky;top:0;z-index:2;background:var(--panel);color:var(--mute)}
+tr:last-child td{border-bottom:0}
+.sc{position:sticky;left:0;z-index:1;background:var(--panel);text-align:left;min-width:200px;border-right:1px solid var(--line)}
+th.sc{z-index:3}
+.pc,.fc{display:flex;align-items:center;gap:8px}
+.pi{min-width:0;flex:1}.pn{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ps{font-size:12px;color:var(--mute);font-weight:400}.pt{font-size:22px;flex:none}
+.note{color:var(--mute);font-size:13px;margin:8px 2px 0}
+.acts{display:grid;gap:10px;margin:22px 0 8px}
+.warn{color:var(--lose);border-color:var(--lose)}
+.empty{color:var(--mute);padding:14px}
+a.cta{display:grid;place-items:center;text-decoration:none;font-weight:700;border-radius:14px;border:2px solid var(--ink);background:var(--ink);color:var(--bg)}
+.shot{width:100%;height:auto;border-radius:14px;border:1.5px solid var(--line);margin-bottom:12px}
+body{position:relative}
+#app{position:relative;z-index:1}
+#cf{position:fixed;inset:0;z-index:60;pointer-events:none}
+.blobs{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.blobs i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;will-change:transform}
+.blobs i:nth-child(1){width:62vmax;height:62vmax;left:-18vmax;top:-20vmax;background:#6d8dff;animation:b1 24s ease-in-out infinite alternate}
+.blobs i:nth-child(2){width:54vmax;height:54vmax;right:-20vmax;top:18%;background:#c58bff;animation:b2 30s ease-in-out infinite alternate}
+.blobs i:nth-child(3){width:58vmax;height:58vmax;left:-8vmax;bottom:-24vmax;background:#3ddcc0;animation:b3 27s ease-in-out infinite alternate}
+.blobs i:nth-child(4){width:40vmax;height:40vmax;right:5vmax;bottom:-8vmax;background:#ff9bb0;animation:b1 21s ease-in-out infinite alternate-reverse}
+@keyframes b1{to{transform:translate(22vmax,16vmax) scale(1.2)}}
+@keyframes b2{to{transform:translate(-26vmax,-10vmax) scale(.85)}}
+@keyframes b3{to{transform:translate(24vmax,-18vmax) scale(1.15)}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .blobs i{opacity:.33}}
+:root[data-theme="dark"] .blobs i{opacity:.33}
+.game{height:100vh;height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;padding:10px 16px 12px}
+.game .bar{flex:none;margin:0 0 10px}.game .bar h2{font-size:32px}
+.game .rows{flex:1;min-height:0;align-content:start;overflow-y:auto;padding:3px}
+.row{background:color-mix(in srgb,var(--panel) 80%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.med{font-size:15px}
+.rows.cp{gap:6px}.cp .row{padding:3px 8px}.cp .who>div{display:flex;align-items:center;gap:10px}.cp .tot{font-size:20px}
+.cp .stp button,.cp .seg button{min-height:34px;width:auto;min-width:34px;font-size:18px}.cp .seg button{font-size:14px;padding:0 9px}.cp .stp .bid,.cp .res .bid{font-size:22px;min-width:28px}
+.stw,.fw{height:100%;display:flex;flex-direction:column;padding-bottom:14px}
+.stw .shead{flex:none}.shead h2{font-size:28px}.shead small{color:var(--mute);font-size:13px}
+.ib{display:flex;gap:8px}.ibtn{width:44px;padding:0}
+.ibtn,.fi button{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.acts2{flex:none;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.stw .note{flex:none}
+.fin{z-index:26}.fw{text-align:center;padding-top:18px}
+.ft{flex:none}.ft .trophy{font-size:52px}.ft h2{font-size:32px;margin:2px 0;line-height:1.1}.ft .sub{margin:0 0 12px}
+.fl{flex:1;min-height:0;display:grid;gap:8px;align-content:start;overflow-y:auto;padding:4px;text-align:left}
+.fc{padding:10px 12px;border-radius:16px;background:var(--panel);border:1.5px solid var(--line);animation:cardIn .65s cubic-bezier(.3,1.4,.5,1) both}
+.fc.g1,.fc.g2,.fc.g3{border-color:var(--hc);background:linear-gradient(100deg,color-mix(in srgb,var(--hc) 24%,var(--panel)),var(--panel) 75%);box-shadow:0 6px 20px color-mix(in srgb,var(--hc) 24%,transparent)}
+.fl.cp{gap:6px}.fl.cp .fc{padding:6px 10px}.fl.cp .pt{font-size:19px}
+.fa{flex:none;padding-top:12px;animation:cardIn .5s ease both}
+.fi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.nf{animation:none!important}
+@keyframes cardIn{from{opacity:0;transform:translateY(36px) scale(.92)}to{opacity:1;transform:none}}
+.mod{position:fixed;inset:0;z-index:40;background:rgba(5,10,20,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:grid;place-items:center;padding:20px;animation:fadeIn .2s}
+.mod .card{width:100%;max-width:360px;background:var(--panel);border:1.5px solid var(--line);border-radius:20px;padding:20px;animation:cardIn .3s cubic-bezier(.3,1.4,.5,1)}
+.mod button{width:100%;margin-top:8px}.mod small{display:block;font-weight:400;opacity:.8}.mod .cta{min-height:52px;font-size:16px}
+@keyframes fadeIn{from{opacity:0}}
+button{transition:transform .12s,background .2s,border-color .2s,box-shadow .2s}
+button:active:not(:disabled){transform:scale(.96)}
+@media (hover:hover){button:hover:not(:disabled){border-color:var(--acc)}}
+h1{background:linear-gradient(120deg,var(--ink) 30%,var(--acc));-webkit-background-clip:text;background-clip:text;color:transparent}
+.cta{box-shadow:0 8px 24px color-mix(in srgb,var(--ink) 22%,transparent)}
+.names input,.field input,.sw,.stp{-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.names input,.field input,.sw{background:color-mix(in srgb,var(--panel) 78%,transparent)}
+.tbl{overflow-x:hidden;overflow-y:auto;background:color-mix(in srgb,var(--panel) 85%,transparent)}
+table.v{table-layout:fixed;width:100%;min-width:0}
+table.v th,table.v td{padding:7px 2px;background:transparent}
+table.v th{background:var(--panel)}
+table.v .rc{width:46px;color:var(--mute);font-size:12px}
+table.v tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--tint) 40%,transparent)}
+.ph{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;padding:0 2px}
+.ph .rk{width:22px;height:22px;font-size:11px;margin-bottom:2px}
+.ph .pn{font-size:12px;max-width:100%}.ph .pt{font-size:20px;line-height:1.15}.ph .ps{font-size:11px;font-weight:600}
+.cm{flex:none;display:flex;align-items:flex-start;gap:10px;margin-top:10px;padding:10px 12px;border-radius:14px;background:color-mix(in srgb,var(--panel) 72%,transparent);border:1.5px solid var(--line);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);font-size:13.5px;line-height:1.4;min-height:68px}
+.cm p{margin:0;flex:1;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.cm .mic{font-size:18px;line-height:1.2}.cm.off p{color:var(--mute)}.cm.new{animation:cardIn .5s cubic-bezier(.3,1.4,.5,1)}
+.chip{min-height:28px;padding:0 10px;font-size:12px;border-radius:99px;flex:none}
+.fq{margin:0 0 10px;text-align:left;min-height:0}
+@media (prefers-reduced-motion:reduce){.row.rise,.row.fall,.crown,.mv,.trophy,.blobs i,.fc,.fa,.mod,.mod .card{animation:none}}
+</style></head>
+<body><div class="blobs" aria-hidden="true"><i></i><i></i><i></i><i></i></div><canvas id="cf"></canvas><div id="app"></div>
 <script>
-const W=900,PH=1200,BH=190,H=PH+BH,MAXZ=6;
-const $=s=>document.querySelector(s);
-const list=$('#list'),defDate=$('#defDate');
-const items=[];
-const today=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
-defDate.value=today();
-const fmt=iso=>{const [y,m,d]=iso.split('-');return `${d}-${m}-${y}`};
-
-function geom(it){
-  const im=it.img,base=Math.min(im.width,im.height*3/4),cw=base/it.zoom,ch=cw*4/3;
-  it.cx=Math.max(cw/2/im.width,Math.min(1-cw/2/im.width,it.cx));
-  it.cy=Math.max(ch/2/im.height,Math.min(1-ch/2/im.height,it.cy));
-  return {cw,ch,sx:it.cx*im.width-cw/2,sy:it.cy*im.height-ch/2};
-}
-
-function render(it){
-  const c=it.canvas,x=c.getContext('2d');
-  if(c.width!==W){c.width=W;c.height=H}
-  const g=geom(it);
-  x.fillStyle='#fff';x.fillRect(0,0,W,PH);
-  const src=(it.bg&&it.cut)?it.cut:it.img,s=src.width/it.img.width;
-  x.drawImage(src,g.sx*s,g.sy*s,g.cw*s,g.ch*s,0,0,W,PH);
-  const d=x.getImageData(0,0,W,PH),p=d.data;
-  for(let i=0;i<p.length;i+=4){const v=.299*p[i]+.587*p[i+1]+.114*p[i+2];p[i]=p[i+1]=p[i+2]=v}
-  x.putImageData(d,0,0);
-  x.fillStyle='#000';x.fillRect(0,PH,W,BH);
-  x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';
-  const name=it.name.trim();
-  if(name){
-    let fs=72;x.font=`${fs}px Helvetica,Arial,sans-serif`;
-    while(x.measureText(name).width>W-60&&fs>24){fs-=2;x.font=`${fs}px Helvetica,Arial,sans-serif`}
-    x.fillText(name,W/2,PH+BH*.33);
-  }
-  x.font='72px Helvetica,Arial,sans-serif';
-  x.fillText(fmt(it.date),W/2,PH+BH*.75);
-}
-function changed(it){it.el.classList.remove('done');render(it)}
-function markDone(it){it.el.classList.add('done')}
-
-function card(it){
-  const el=document.createElement('div');el.className='item';
-  el.innerHTML=`<div class="cv">
-    <canvas aria-label="Photo preview. Drag to move, pinch or scroll to zoom."></canvas>
-    <span class="tick" title="Downloaded"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
-    <div class="zoom"><button type="button" class="zo" aria-label="Zoom out">&minus;</button><button type="button" class="zi" aria-label="Zoom in">+</button><button type="button" class="rs" aria-label="Reset crop">Reset</button></div>
-  </div>
-  <div class="f">
-    <label>Student name<input type="text" class="n" placeholder="Enter name" autocomplete="off"></label>
-    <label>Date photo was taken<input type="date" class="d"></label>
-    <label class="chk"><input type="checkbox" class="bg"> Remove background (set to white)</label>
-    <span class="bgst"></span>
-    <p class="hint">Drag the photo to reposition. Pinch, scroll, or use + / &minus; to zoom.</p>
-    <div class="act"><button type="button" class="pri dl">Download</button><button type="button" class="rm">Remove</button><span class="st">&#10003; Downloaded</span></div>
-  </div>`;
-  it.el=el;it.canvas=el.querySelector('canvas');
-  const n=el.querySelector('.n'),d=el.querySelector('.d');
-  n.value='';d.value=it.date;
-  n.oninput=()=>{it.name=n.value;changed(it)};
-  d.oninput=()=>{it.date=d.value||today();changed(it)};
-  it.bgc=el.querySelector('.bg');it.bgst=el.querySelector('.bgst');
-  it.bgc.onchange=()=>setBg(it,it.bgc.checked);
-  const zoomBy=f=>{it.zoom=Math.max(1,Math.min(MAXZ,it.zoom*f));changed(it)};
-  el.querySelector('.zi').onclick=()=>zoomBy(1.2);
-  el.querySelector('.zo').onclick=()=>zoomBy(1/1.2);
-  el.querySelector('.rs').onclick=()=>{it.zoom=1;it.cx=it.cx0;it.cy=it.cy0;changed(it)};
-  el.querySelector('.dl').onclick=()=>save(it);
-  el.querySelector('.rm').onclick=()=>{items.splice(items.indexOf(it),1);el.remove();count()};
-
-  // drag + pinch
-  const c=it.canvas,ptr=new Map();let pd=0;
-  c.addEventListener('pointerdown',e=>{c.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);pd=0});
-  c.addEventListener('pointermove',e=>{
-    if(!ptr.has(e.pointerId))return;
-    const prev=ptr.get(e.pointerId);
-    if(ptr.size===1){
-      const g=geom(it),k=g.cw/(c.getBoundingClientRect().width);
-      it.cx-=(e.clientX-prev[0])*k/it.img.width;
-      it.cy-=(e.clientY-prev[1])*k/it.img.height;
-      ptr.set(e.pointerId,[e.clientX,e.clientY]);changed(it);
-    }else if(ptr.size===2){
-      ptr.set(e.pointerId,[e.clientX,e.clientY]);
-      const [a,b]=[...ptr.values()],dist=Math.hypot(a[0]-b[0],a[1]-b[1]);
-      if(pd>0){it.zoom=Math.max(1,Math.min(MAXZ,it.zoom*dist/pd));changed(it)}
-      pd=dist;
-    }
-  });
-  const up=e=>{ptr.delete(e.pointerId);pd=0};
-  c.addEventListener('pointerup',up);c.addEventListener('pointercancel',up);
-  c.addEventListener('wheel',e=>{e.preventDefault();zoomBy(Math.exp(-e.deltaY*.0015))},{passive:false});
-
-  list.appendChild(el);render(it);
-}
-
-// ---- background removal (MODNet via Transformers.js; no API key, model downloads once) ----
-let bgPipe=null,bgQueue=Promise.resolve();
-function loadBg(){
-  if(!bgPipe)bgPipe=(async()=>{
-    const T=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3');
-    const model=await T.AutoModel.from_pretrained('Xenova/modnet',{dtype:'fp32'});
-    const processor=await T.AutoProcessor.from_pretrained('Xenova/modnet');
-    return {T,model,processor};
-  })().catch(e=>{bgPipe=null;throw e});
-  return bgPipe;
-}
-async function doCut(it){
-  if(it.cut)return;
-  const {T,model,processor}=await loadBg();
-  const im=it.img;
-  // small copy for the model
-  const k=Math.min(1,1024/Math.max(im.width,im.height)),mw=Math.round(im.width*k),mh=Math.round(im.height*k);
-  const sc=document.createElement('canvas');sc.width=mw;sc.height=mh;
-  const sx=sc.getContext('2d');sx.drawImage(im,0,0,mw,mh);
-  const raw=new T.RawImage(sx.getImageData(0,0,mw,mh).data,mw,mh,4).rgb();
-  const {pixel_values}=await processor(raw);
-  const {output}=await model({input:pixel_values});
-  const mask=await T.RawImage.fromTensor(output[0].mul(255).to('uint8')).resize(mw,mh);
-  // mask -> alpha canvas (firm up faint noise at the extremes)
-  const mc=document.createElement('canvas');mc.width=mw;mc.height=mh;
-  const mx=mc.getContext('2d'),md=mx.createImageData(mw,mh);
-  for(let i=0;i<mw*mh;i++){const m=mask.data[i];md.data[i*4]=md.data[i*4+1]=md.data[i*4+2]=255;md.data[i*4+3]=m<30?0:m>225?255:m}
-  mx.putImageData(md,0,0);
-  // cut-out at up to 2000px, background transparent
-  const f=Math.min(1,2000/Math.max(im.width,im.height)),cw=Math.round(im.width*f),ch=Math.round(im.height*f);
-  const cc=document.createElement('canvas');cc.width=cw;cc.height=ch;
-  const cx=cc.getContext('2d');cx.drawImage(im,0,0,cw,ch);
-  cx.globalCompositeOperation='destination-in';cx.drawImage(mc,0,0,cw,ch);
-  it.cut=cc;
-}
-function makeCut(it){const p=bgQueue.then(()=>doCut(it));bgQueue=p.catch(()=>{});return p}
-async function setBg(it,on){
-  it.bg=on;it.bgc.checked=on;
-  if(!on){it.bgst.textContent='';changed(it);return}
-  if(!it.cut){
-    it.bgst.textContent=bgPipe?'Removing background…':'Loading background model. First time can take a minute…';
-    try{await makeCut(it);it.bgst.textContent=''}
-    catch(e){console.error(e);it.bg=false;it.bgc.checked=false;it.bgst.textContent='Background removal failed. Check your internet connection and try again.'}
-  }
-  changed(it);
-}
-
-const blobOf=it=>new Promise(r=>it.canvas.toBlob(r,'image/jpeg',.95));
-const cleanName=it=>(it.name.trim().replace(/[\\\/:*?"<>|]+/g,'').replace(/\s+/g,' ').trim()||'student');
-function dl(blob,name){
-  const a=document.createElement('a');a.download=name;a.href=URL.createObjectURL(blob);
-  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
-}
-async function save(it){dl(await blobOf(it),cleanName(it)+'.jpg');markDone(it)}
-const count=()=>{$('#cnt').textContent=items.length?items.length+' photo'+(items.length>1?'s':''):''};
-
-// minimal ZIP writer (store, no compression: JPEGs are already compressed)
-const crcT=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
-const crc32=u=>{let c=~0;for(let i=0;i<u.length;i++)c=crcT[(c^u[i])&255]^(c>>>8);return ~c>>>0};
-function makeZip(files){
-  const enc=new TextEncoder(),now=new Date();
-  const dt=((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate();
-  const tm=(now.getHours()<<11)|(now.getMinutes()<<5)|(now.getSeconds()>>1);
-  const parts=[],cd=[];let off=0;
-  for(const f of files){
-    const nm=enc.encode(f.name),crc=crc32(f.data),sz=f.data.length;
-    const lh=new DataView(new ArrayBuffer(30));
-    lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(8,0,true);
-    lh.setUint16(10,tm,true);lh.setUint16(12,dt,true);lh.setUint32(14,crc,true);lh.setUint32(18,sz,true);lh.setUint32(22,sz,true);
-    lh.setUint16(26,nm.length,true);lh.setUint16(28,0,true);
-    parts.push(lh.buffer,nm,f.data);
-    const ch=new DataView(new ArrayBuffer(46));
-    ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,0x0800,true);ch.setUint16(10,0,true);
-    ch.setUint16(12,tm,true);ch.setUint16(14,dt,true);ch.setUint32(16,crc,true);ch.setUint32(20,sz,true);ch.setUint32(24,sz,true);
-    ch.setUint16(28,nm.length,true);ch.setUint32(42,off,true);
-    cd.push(ch.buffer,nm);
-    off+=30+nm.length+sz;
-  }
-  let cds=0;cd.forEach(b=>cds+=b.byteLength);
-  const end=new DataView(new ArrayBuffer(22));
-  end.setUint32(0,0x06054b50,true);end.setUint16(8,files.length,true);end.setUint16(10,files.length,true);
-  end.setUint32(12,cds,true);end.setUint32(16,off,true);
-  return new Blob([...parts,...cd,end.buffer],{type:'application/zip'});
-}
-$('#zipAll').onclick=async()=>{
-  if(!items.length)return;
-  const used={},files=[];
-  for(const it of items){
-    let base=cleanName(it),nm=base,i=1;
-    while(used[nm.toLowerCase()])nm=`${base} (${i++})`;
-    used[nm.toLowerCase()]=1;
-    files.push({name:nm+'.jpg',data:new Uint8Array(await (await blobOf(it)).arrayBuffer())});
-  }
-  dl(makeZip(files),'Student Photos.zip');
-  items.forEach(markDone);
-};
-$('#dlAll').onclick=async()=>{for(const it of items){await save(it);await new Promise(r=>setTimeout(r,350))}};
-
-async function addFiles(files){
-  for(const f of files){
-    if(!f.type.startsWith('image/'))continue;
-    const url=URL.createObjectURL(f),img=new Image();
-    try{await new Promise((r,j)=>{img.onload=r;img.onerror=j;img.src=url})}catch(e){continue}
-    const it={img,name:'',date:defDate.value||today(),zoom:1,cx:.5,cy:.42};
-    try{
-      if('FaceDetector' in window){
-        const fs=await new FaceDetector({fastMode:true}).detect(img);
-        if(fs.length){const b=fs.sort((a,b)=>b.boundingBox.width-a.boundingBox.width)[0].boundingBox;
-          it.cx=(b.x+b.width/2)/img.width;it.cy=(b.y+b.height/2)/img.height+.04}
-      }
-    }catch(e){}
-    it.cx0=it.cx;it.cy0=it.cy;
-    items.push(it);card(it);
-    if($('#bgAll').checked)setBg(it,true);
-  }
-  count();
-}
-
-$('#file').onchange=e=>{addFiles([...e.target.files]);e.target.value=''};
-const drop=$('#drop');
-['dragover','dragenter'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add('on')}));
-['dragleave','drop'].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove('on')}));
-drop.addEventListener('drop',e=>addFiles([...e.dataTransfer.files]));
-$('#applyDate').onclick=()=>items.forEach(it=>{it.date=defDate.value||today();it.el.querySelector('.d').value=it.date;changed(it)});
-$('#bgAll').onchange=e=>items.forEach(it=>setBg(it,e.target.checked));
-$('#clear').onclick=()=>{if(items.length&&confirm('Remove all photos?')){items.length=0;list.innerHTML='';count()}};
-</script>
-</body>
-</html>
+const K='callbreak-scorepad-v1';
+const fresh=()=>({view:'setup',names:[],start:[],offset:0,rounds:[],bids:[],phase:'bid',res:[],sheet:false,final:false,finale:false,lang:'en',endCm:null,mode:'endless',target:31,hit:false,mv:{}});
+let S=fresh();
+let setup={lang:'en',n:4,names:[],prog:false,starts:[],offset:'',mode:'target',target:'31'};
+let stScroll=false,cmNew=false,menu=false,fin=false,fdone=false,shot=null,flip=false,nt='',ntErr='';
+function save(){try{localStorage.setItem(K,JSON.stringify({S,setup}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(K)||'null');if(d&&d.S&&Array.isArray(d.S.names)){S=Object.assign(S,d.S);setup=Object.assign(setup,d.setup||{})}}catch(e){}}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sg=n=>n>0?'+'+n:n<0?'\u2212'+Math.abs(n):'0';
+const cls=n=>n<0?'neg':'';
+const base=i=>(S.start&&S.start[i])||0;
+const total=i=>S.rounds.reduce((a,r)=>a+(r.res[i]?r.bids[i]:-r.bids[i]),base(i));
+function stat(i){const rs=S.rounds;const w=rs.filter(r=>r.res[i]).length;const l=rs.length-w;
+return{w,l,avg:rs.length?rs.reduce((a,r)=>a+r.bids[i],0)/rs.length:0,pct:rs.length?Math.round(100*w/rs.length):0}}
+function ranking(){const o=S.names.map((_,i)=>i).sort((a,b)=>total(b)-total(a));const rank={};
+o.forEach((i,k)=>{rank[i]=(k>0&&total(i)===total(o[k-1]))?rank[o[k-1]]:k+1});return{o,rank}}
+let ac;function A(){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}return ac}
+function tone(f,d,t,v,w,sl){const c=A();if(!c)return;try{const o=c.createOscillator(),g=c.createGain(),s=c.currentTime+(w||0);o.type=t||'sine';o.frequency.setValueAtTime(f,s);if(sl)o.frequency.exponentialRampToValueAtTime(sl,s+d);g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(v||.2,s+.015);g.gain.exponentialRampToValueAtTime(.0001,s+d);o.connect(g);g.connect(c.destination);o.start(s);o.stop(s+d+.03)}catch(e){}}
+const snd={tick:()=>tone(900,.05,'sine',.08),lock:()=>{tone(196,.2,'triangle',.3);tone(392,.3,'sine',.18,.09);tone(587,.45,'sine',.14,.2)},win:()=>[523,659,784,1047].forEach((f,k)=>tone(f,.3,'triangle',.2,k*.08)),lose:()=>{tone(311,.5,'sawtooth',.08,0,155);tone(233,.6,'triangle',.18,.14,110)},save:()=>{tone(660,.12,'sine',.15);tone(990,.22,'sine',.12,.09)},end:()=>[523,659,784,1047,1319].forEach((f,k)=>tone(f,.5,'triangle',.18,k*.12)),swoosh:()=>tone(260,.5,'sine',.1,.1,1100)};
+const hap=p=>{if(navigator.vibrate)try{navigator.vibrate(p)}catch(e){}};
+function draw(){const {o,rank}=ranking(),n=o.length,W=1080,H=470+n*148+110,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+const rr=(a,b,w,h,q)=>{x.beginPath();if(x.roundRect)x.roundRect(a,b,w,h,q);else x.rect(a,b,w,h)};
+x.fillStyle='#0b1320';x.fillRect(0,0,W,H);x.fillStyle='#8fb0ff';x.font='700 84px Georgia,serif';x.fillText('Call Break',70,150);
+const played=S.offset+S.rounds.length,tied=o.filter(i=>total(i)===total(o[0]));
+x.fillStyle='#93a0b6';x.font='500 36px system-ui,sans-serif';x.fillText(played+' round'+(played===1?'':'s')+' played',70,210);
+x.fillStyle='#eef2f8';x.font='700 60px Georgia,serif';let t=tied.map(i=>S.names[i]).join(' & ')+(tied.length>1?' tie':' wins');
+while(x.measureText(t).width>940&&t.length>4)t=t.slice(0,-2);x.fillText(t,70,330);
+x.fillStyle='#8fb0ff';x.font='600 40px system-ui,sans-serif';x.fillText('with '+total(o[0])+' points',70,392);
+o.forEach((i,k)=>{const y=450+k*148;x.fillStyle='#131e30';rr(60,y,960,128,28);x.fill();x.fillStyle='#1b2a43';x.beginPath();x.arc(140,y+64,32,0,7);x.fill();
+x.fillStyle='#eef2f8';x.font='700 34px system-ui,sans-serif';x.textAlign='center';x.fillText(rank[i],140,y+76);
+x.textAlign='left';x.font='700 44px system-ui,sans-serif';x.fillText(S.names[i].slice(0,14),200,y+62);
+x.fillStyle='#93a0b6';x.font='500 30px system-ui,sans-serif';const q=stat(i);x.fillText(q.pct+'% wins \u00B7 '+q.w+'\u2013'+q.l,200,y+104);
+x.textAlign='right';x.fillStyle=total(i)<0?'#ff7088':'#8fb0ff';x.font='700 72px Georgia,serif';x.fillText(String(total(i)).replace('-','\u2212'),990,y+88);x.textAlign='left'});
+return c}
+function summary(){const {o}=ranking();return 'Call Break result\n'+o.map((i,k)=>(k+1)+'. '+S.names[i]+': '+total(i)).join('\n')}
+async function share(){const c=draw();try{const blob=await new Promise(q=>c.toBlob(q,'image/png'));const f=new File([blob],'call-break-result.png',{type:'image/png'});
+if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Call Break result',text:summary()});return}}catch(e){if(e&&e.name==='AbortError')return}
+shot=c.toDataURL('image/png');render()}
+function overlay(){return shot?`<div class="sheet" style="z-index:30"><div class="wrap"><div class="shead"><h2 class="serif">Result image</h2><button data-a="shotclose">Close</button></div>
+<img class="shot" src="${shot}" alt="Game result"><a class="cta" href="${shot}" download="call-break-result.png" style="min-height:56px">Download image</a><p class="note">If the download does nothing, press and hold the image to save it.</p></div></div>`:''}
+const INTRO=["Cards are dealt. Bid wisely, losers will be named and shamed.","\u092A\u0924\u094D\u0924\u0947 \u092C\u0901\u091F \u0917\u090F\u0964 \u0938\u094B\u091A-\u0938\u092E\u091D\u0915\u0930 \u092C\u094B\u0932\u0940 \u0932\u0917\u093E\u0913, \u0939\u093E\u0930\u0928\u0947 \u0935\u093E\u0932\u094B\u0902 \u0915\u0940 \u0916\u0948\u0930 \u0928\u0939\u0940\u0902\u0964"],INTRO_CM={en:INTRO[0],hi:INTRO[1]};
+const PR_BIG=[["{w} called {b} and actually delivered. Cold-blooded.","{w} \u0928\u0947 {b} \u092C\u094B\u0932\u093E \u0914\u0930 \u0915\u0930\u0915\u0947 \u092D\u0940 \u0926\u093F\u0916\u093E\u092F\u093E\u0964 \u0915\u094D\u092F\u093E \u092C\u093E\u0924 \u0939\u0948!"],["{w} made a bid of {b} look easy. Everyone else, take notes.","{w} \u0928\u0947 {b} \u0915\u0940 \u092C\u094B\u0932\u0940 \u0906\u0930\u093E\u092E \u0938\u0947 \u0928\u093F\u0915\u093E\u0932 \u0926\u0940\u0964 \u092C\u093E\u0915\u0940 \u0932\u094B\u0917 \u0928\u094B\u091F\u094D\u0938 \u092C\u0928\u093E \u0932\u094B\u0964"],["Take a bow, {w}: {b} called, {b} banked.","{w} \u0915\u094B \u0938\u0932\u093E\u092E: {b} \u092C\u094B\u0932\u0947 \u0914\u0930 \u092A\u0942\u0930\u0947 {b} \u0915\u092E\u093E\u090F\u0964"]];
+const PR_SM=[["{w} quietly pockets +{b}. Safe, boring, effective.","{w} \u091A\u0941\u092A\u091A\u093E\u092A +{b} \u0932\u0947 \u0917\u092F\u093E\u0964 \u0938\u0947\u092B \u0916\u0947\u0932, \u092A\u0930 \u0915\u093E\u092E \u0915\u093E\u0964"],["{w} takes +{b}. Steady hands, steady brain.","{w} \u0915\u094B +{b} \u092E\u093F\u0932\u0947\u0964 \u0939\u093E\u0925 \u092D\u0940 \u092A\u0915\u094D\u0915\u0947, \u0926\u093F\u092E\u093E\u0917 \u092D\u0940\u0964"],["+{b} for {w}. Not flashy, but it counts.","{w} \u0915\u0947 +{b}\u0964 \u091A\u092E\u0915-\u0926\u092E\u0915 \u0928\u0939\u0940\u0902, \u092A\u0930 \u092A\u0949\u0907\u0902\u091F \u0924\u094B \u092A\u0949\u0907\u0902\u091F \u0939\u0948\u0902\u0964"]];
+const RO_BIG=[["{l} bid {b} and lost {b}. Confidence: 10, skills: 0.","{l} \u0928\u0947 {b} \u092C\u094B\u0932\u093E \u0914\u0930 {b} \u0917\u0901\u0935\u093E\u090F\u0964 \u0915\u0949\u0928\u094D\u092B\u093F\u0921\u0947\u0902\u0938 10 \u0928\u0902\u092C\u0930, \u0916\u0947\u0932 0\u0964"],["Bold of {l} to call {b}. Even bolder to fail at it.","{l} \u0915\u0940 \u0939\u093F\u092E\u094D\u092E\u0924 \u0926\u0947\u0916\u094B, {b} \u092C\u094B\u0932\u093E \u0914\u0930 \u092B\u0947\u0932 \u092D\u0940 \u0939\u094B \u0917\u092F\u093E\u0964"],["{l} just donated {b} points to the table. So generous.","{l} \u0928\u0947 {b} \u092A\u0949\u0907\u0902\u091F \u091F\u0947\u092C\u0932 \u0915\u094B \u0926\u093E\u0928 \u0915\u0930 \u0926\u093F\u090F\u0964 \u0926\u093F\u0932 \u092C\u0921\u093C\u093E \u0939\u0948 \u092D\u093E\u0908\u0964"]];
+const RO_SM=[["{l} couldn't even make a bid of {b}. Embarrassing.","{l} \u0938\u0947 \u0924\u094B \u0938\u093F\u0930\u094D\u092B {b} \u0915\u0940 \u092C\u094B\u0932\u0940 \u092D\u0940 \u092A\u0942\u0930\u0940 \u0928\u0939\u0940\u0902 \u0939\u0941\u0908\u0964 \u0936\u0930\u094D\u092E\u0928\u093E\u0915\u0964"],["{l} lost {b}. Maybe let someone else hold the cards?","{l} \u0928\u0947 {b} \u0916\u094B\u090F\u0964 \u092A\u0924\u094D\u0924\u0947 \u0915\u093F\u0938\u0940 \u0914\u0930 \u0915\u094B \u0926\u0947 \u0926\u094B, \u092C\u0947\u091F\u093E\u0964"],["{l} falls for -{b}. Even the deck feels bad for you.","{l} \u0915\u0947 -{b}\u0964 \u092A\u0924\u094D\u0924\u0947 \u092D\u0940 \u0924\u0941\u092E \u092A\u0930 \u0924\u0930\u0938 \u0916\u093E \u0930\u0939\u0947 \u0939\u0948\u0902\u0964"]];
+const STREAK_L=[["{l} has lost {k} rounds in a row. Is the game even on your side?","{l} \u0932\u0917\u093E\u0924\u093E\u0930 {k} \u0930\u093E\u0909\u0902\u0921 \u0939\u093E\u0930 \u091A\u0941\u0915\u093E \u0939\u0948\u0964 \u0915\u093F\u0938\u094D\u092E\u0924 \u092D\u0940 \u0938\u093E\u0925 \u091B\u094B\u0921\u093C \u0917\u0908\u0964"],["{k} straight losses for {l}. Retirement is a valid option.","{l} \u0915\u0940 \u0932\u0917\u093E\u0924\u093E\u0930 {k} \u0939\u093E\u0930\u0964 \u0905\u092C \u0938\u0902\u0928\u094D\u092F\u093E\u0938 \u0932\u0947 \u0932\u094B\u0964"]];
+const STREAK_W=[["{w} is on a {k}-round winning streak. Someone stop them, please.","{w} \u0932\u0917\u093E\u0924\u093E\u0930 {k} \u0930\u093E\u0909\u0902\u0921 \u091C\u0940\u0924 \u091A\u0941\u0915\u093E \u0939\u0948\u0964 \u0915\u094B\u0908 \u0924\u094B \u0930\u094B\u0915\u094B \u0907\u0938\u0947!"],["{k} wins on the trot for {w}. The rest of you are just furniture.","{w} \u0915\u0940 \u0932\u0917\u093E\u0924\u093E\u0930 {k} \u091C\u0940\u0924\u0964 \u092C\u093E\u0915\u0940 \u0932\u094B\u0917 \u092C\u0938 \u0938\u091C\u093E\u0935\u091F \u0939\u094B\u0964"]];
+const ALL_L=[["Everybody lost. A round so bad the cards want a refund.","\u0938\u092C \u0939\u093E\u0930 \u0917\u090F\u0964 \u0907\u0924\u0928\u093E \u092C\u0941\u0930\u093E \u0930\u093E\u0909\u0902\u0921 \u0915\u093F \u092A\u0924\u094D\u0924\u0947 \u092D\u0940 \u0930\u093F\u092B\u0902\u0921 \u092E\u093E\u0901\u0917 \u0930\u0939\u0947 \u0939\u0948\u0902\u0964"]],ALL_W=[["Everybody won. Nobody was brave enough to bid big.","\u0938\u092C \u091C\u0940\u0924 \u0917\u090F\u0964 \u0915\u093F\u0938\u0940 \u092E\u0947\u0902 \u092C\u0921\u093C\u0940 \u092C\u094B\u0932\u0940 \u0932\u0917\u093E\u0928\u0947 \u0915\u0940 \u0939\u093F\u092E\u094D\u092E\u0924 \u0939\u0940 \u0928\u0939\u0940\u0902 \u0925\u0940\u0964"]];
+const LEAD=[["{a} snatches the top spot from {b}. Enjoy the view from below, {b}.","{a} \u0928\u0947 {b} \u0938\u0947 \u091F\u0949\u092A \u0938\u094D\u092A\u0949\u091F \u091B\u0940\u0928 \u0932\u093F\u092F\u093E\u0964 \u0905\u092C \u0928\u0940\u091A\u0947 \u0938\u0947 \u0928\u091C\u093C\u093E\u0930\u093E \u0926\u0947\u0916\u094B, {b}\u0964"],["New leader: {a}. {b}, that crown looked good on you while it lasted.","\u0928\u092F\u093E \u0932\u0940\u0921\u0930: {a}\u0964 {b}, \u0924\u093E\u091C \u0924\u0941\u092E \u092A\u0930 \u091C\u0901\u091A \u0930\u0939\u093E \u0925\u093E, \u091C\u092C \u0924\u0915 \u0930\u0939\u093E\u0964"]];
+const LAST=[["{l} is still rooted to the bottom with {p}. Is the floor comfy?","{l} \u0905\u092C \u092D\u0940 {p} \u092A\u0949\u0907\u0902\u091F \u0915\u0947 \u0938\u093E\u0925 \u0938\u092C\u0938\u0947 \u0928\u0940\u091A\u0947 \u0939\u0948\u0964 \u092B\u0930\u094D\u0936 \u092A\u0930 \u092E\u091C\u093C\u093E \u0906 \u0930\u0939\u093E \u0939\u0948 \u0915\u094D\u092F\u093E?"],["{l} sits last on {p}. Even the table is embarrassed.","{l} {p} \u092A\u0930 \u0906\u0916\u093F\u0930\u0940 \u0928\u0902\u092C\u0930 \u092A\u0930 \u0939\u0948\u0964 \u091F\u0947\u092C\u0932 \u092D\u0940 \u0936\u0930\u094D\u092E\u093F\u0902\u0926\u093E \u0939\u0948\u0964"]];
+const END_W=[["{w} wins with {p} points. Bow down, everyone.","{w} {p} \u092A\u0949\u0907\u0902\u091F \u0915\u0947 \u0938\u093E\u0925 \u091A\u0948\u0902\u092A\u093F\u092F\u0928\u0964 \u092C\u093E\u0915\u0940 \u0938\u092C \u0938\u0930 \u091D\u0941\u0915\u093E\u0913\u0964"],["The table belongs to {w} tonight: {p} points of pure domination.","\u0906\u091C \u0915\u0940 \u0930\u093E\u0924 {w} \u0915\u0947 \u0928\u093E\u092E: {p} \u092A\u0949\u0907\u0902\u091F \u0915\u0940 \u092C\u093E\u0926\u0936\u093E\u0939\u0924\u0964"]];
+const END_L=[["And {l} finishes last on {p}. Maybe stick to making the chai next time.","\u0914\u0930 {l} {p} \u0915\u0947 \u0938\u093E\u0925 \u0906\u0916\u093F\u0930\u0940\u0964 \u0905\u0917\u0932\u0940 \u092C\u093E\u0930 \u092C\u0938 \u091A\u093E\u092F \u092C\u0928\u093E\u0928\u0947 \u0915\u093E \u0915\u093E\u092E \u0938\u0901\u092D\u093E\u0932\u0928\u093E\u0964"],["{l} ends at the bottom on {p}. Even the deck wants a rematch without you.","{l} {p} \u092A\u0930 \u0938\u092C\u0938\u0947 \u0928\u0940\u091A\u0947\u0964 \u092A\u0924\u094D\u0924\u0947 \u092D\u0940 \u0924\u0941\u092E\u094D\u0939\u093E\u0930\u0947 \u092C\u093F\u0928\u093E \u0926\u094B\u092C\u093E\u0930\u093E \u0916\u0947\u0932\u0928\u093E \u091A\u093E\u0939\u0924\u0947 \u0939\u0948\u0902\u0964"]];
+const say=(pool,v)=>pool[Math.floor(Math.random()*pool.length)].map(t=>t.replace(/\{(\w)\}/g,(_,k)=>v[k]));
+const jn=o=>({en:o.map(x=>x[0]).join(' '),hi:o.map(x=>x[1]).join(' ')});
+const streak=(i,v)=>{let k=0;for(let j=S.rounds.length-1;j>=0&&S.rounds[j].res[i]===v;j--)k++;return k};
+function comment(pl){const r=S.rounds[S.rounds.length-1],N=S.names,{o}=ranking(),n=o.length,W=[],L=[],out=[],mx=(a,f)=>a.reduce((x,y)=>f(y)>f(x)?y:x);
+N.forEach((_,i)=>(r.res[i]?W:L).push(i));
+if(!L.length)out.push(say(ALL_W,{}));else if(!W.length)out.push(say(ALL_L,{}));
+else{const w=mx(W,i=>r.bids[i]),l=mx(L,i=>r.bids[i]),sw=mx(W,i=>streak(i,true)),sl=mx(L,i=>streak(i,false));
+out.push(streak(sw,true)>=3?say(STREAK_W,{w:N[sw],k:streak(sw,true)}):say(r.bids[w]>=5?PR_BIG:PR_SM,{w:N[w],b:r.bids[w]}));
+out.push(streak(sl,false)>=3?say(STREAK_L,{l:N[sl],k:streak(sl,false)}):say(r.bids[l]>=4?RO_BIG:RO_SM,{l:N[l],b:r.bids[l]}))}
+const lst=o[n-1];
+if(S.rounds.length>1&&o[0]!==pl&&total(o[0])>total(o[1]))out.push(say(LEAD,{a:N[o[0]],b:N[pl]}));
+else if(total(lst)<total(o[n-2])&&Math.random()<.6)out.push(say(LAST,{l:N[lst],p:total(lst)}));
+return jn(out)}
+function endLine(){const {o}=ranking(),N=S.names,l=o[o.length-1],t=o.filter(i=>total(i)===total(o[0]));
+const out=[say(END_W,{w:t.map(i=>N[i]).join(' & '),p:total(o[0])})];if(total(l)<total(o[0]))out.push(say(END_L,{l:N[l],p:total(l)}));return jn(out)}
+const LB={en:'EN',hi:'\u0939\u093F\u0902',off:'OFF'};
+function cmBox(c,end){const L=S.lang||'en',lg=L==='hi'?'hi':'en',mic='<span class="mic">\uD83C\uDF99\uFE0F</span>';
+if(end)return(L==='off'||!c)?'':`<div class="cm fq">${mic}<p lang="${lg}">${esc(c[L])}</p></div>`;
+return `<div class="cm${cmNew?' new':''}${L==='off'?' off':''}">${mic}<p lang="${lg}">${esc(L==='off'?'Commentary is off':c[L])}</p><button class="chip" data-a="lang" aria-label="Change commentary language" title="Commentary language">${LB[L]}</button></div>`}
+const ic=p=>'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';
+const IC={share:ic('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/>'),img:ic('<path d="M12 3v12m0 0l-4-4m4 4l4-4M4 20h16"/>'),x:ic('<path d="M6 6l12 12M18 6L6 18"/>')};
+const MED=['','\uD83D\uDC51','\uD83E\uDD48','\uD83E\uDD49'];
+function row(i,rank,spread,lim){const n=esc(S.names[i]);const b=S.bids[i];const r=S.res[i];
+const h=spread&&rank[i]<=lim?rank[i]:0;
+const ico=h?`<span class="${h===1?'crown':'med'}">${MED[h]}</span>`:'';
+const who=(d)=>`<div class="who"><span class="rk">${rank[i]}</span><div style="min-width:0"><div class="nl"><span class="nm">${n}</span>${ico}</div><div class="tot serif ${cls(total(i))}">${total(i)}${d}</div></div></div>`;
+const lc=h?' hl'+h:'';
+if(S.phase==='bid')return `<div class="row${lc}" data-p="${i}">${who('')}<div class="stp"><button data-a="dec" data-i="${i}" aria-label="Lower ${n} bid">\u2212</button><span class="bid serif">${b}</span><button data-a="inc" data-i="${i}" aria-label="Raise ${n} bid">+</button></div></div>`;
+const d=r===null?'':`<span class="d ${r?'pos':'neg'}">${sg(r?b:-b)}</span>`;
+return `<div class="row${lc}${r===true?' won':r===false?' lost':''}" data-p="${i}">${who(d)}<div class="res"><span class="bid serif">${b}</span><div class="seg"><button class="w${r===true?' on':''}" data-a="win" data-i="${i}">Win</button><button class="lo${r===false?' on':''}" data-a="lose" data-i="${i}">Lose</button></div></div></div>`}
+function game(){const {o,rank}=ranking();const n=o.length,lim=Math.min(Math.max(n-1,1),3);const spread=total(o[0])!==total(o[n-1]);const done=S.res.every(x=>x!==null);const rn=S.offset+S.rounds.length+1;
+const dock=S.phase==='bid'?`<div class="dock"><div><button class="cta" data-a="lock">Lock in bids</button></div></div>`
+:`<div class="dock two"><div><button data-a="unlock" style="min-height:56px">Edit bids</button><button class="cta" data-a="saveRound" ${done?'':'disabled'}>Save round</button></div></div>`;
+const goal=S.mode==='target'?' \u00B7 Target '+S.target:' \u00B7 Endless';
+return `<main class="wrap game"><div class="bar"><div><h2 class="serif">Round ${rn}</h2><small>${S.phase==='bid'?'Set each bid, then lock in':'Mark every player win or lose'}${goal}</small></div><button data-a="stats">Stats</button></div>
+<div class="rows${n>=6?' cp':''}">${o.map(i=>row(i,rank,spread,lim)).join('')}</div>${cmBox((S.rounds[S.rounds.length-1]||{}).cm||INTRO_CM,false)}${dock}</main>`}
+function hitView(){if(!S.hit)return'';const {o}=ranking();const top=total(o[0]);const ws=o.filter(i=>total(i)===top);
+const def=Math.ceil((top+10)/10)*10;
+return `<div class="sheet hit"><div class="wrap"><div class="trophy">\uD83C\uDFC6</div>
+<h2 class="serif">${ws.map(i=>esc(S.names[i])).join(' & ')} ${ws.length>1?'tie':'wins'}!</h2>
+<p class="sub">${ws.length>1?'Both reached':'Reached'} ${top} points. The target was ${S.target}.</p>
+<button class="cta" data-a="hitEnd">End game and see summary</button>
+<h3>Or keep playing</h3>
+<label class="lab" for="nt">New target score</label>
+<input id="nt" data-nt type="number" min="${top+1}" step="1" value="${esc(nt!==''?nt:def)}">
+${ntErr?`<p class="err">${esc(ntErr)}</p>`:''}
+<button data-a="hitSet">Continue to new target</button>
+<button data-a="hitInf">Endless mode (no limit)</button></div></div>`}
+function sheet(){const {o,rank}=ranking();const lead=o[0];const tied=o.filter(i=>total(i)===total(lead));const pl=S.offset+S.rounds.length,pr=pl+' round'+(pl===1?'':'s');
+const sub=S.final?`${tied.map(i=>esc(S.names[i])).join(' & ')} ${tied.length>1?'tie':'wins'} with ${total(lead)} \u00B7 ${pr}`:`${pr} played \u00B7 ${S.mode==='target'?'Target '+S.target:'Endless'}`;
+const hasStart=S.offset>0||S.names.some((_,i)=>base(i)!==0);
+const top=o.map(i=>{const s=stat(i),g=rank[i]<=3?' g'+rank[i]:'';return {i,s,g}});
+const head=`<tr><th class="rc">Rd</th>${top.map(({i,s,g})=>`<th><div class="ph"><span class="rk${g}">${rank[i]}</span><div class="pn">${esc(S.names[i])}</div><b class="pt serif ${cls(total(i))}">${total(i)}</b><div class="ps">${s.pct}%</div></div></th>`).join('')}</tr>`;
+const body=(hasStart?`<tr><td class="rc">Start</td>${o.map(i=>`<td class="${cls(base(i))}">${base(i)}</td>`).join('')}</tr>`:'')+S.rounds.map((r,k)=>`<tr><td class="rc">R${S.offset+k+1}</td>${o.map(i=>`<td class="${r.res[i]?'pos':'neg'}">${sg(r.res[i]?r.bids[i]:-r.bids[i])}</td>`).join('')}</tr>`).join('');
+const note=S.rounds.length?'% under each name is the win rate'+(hasStart?' (only rounds entered here).':'.'):'No rounds saved yet.';
+return `<div class="sheet"><div class="wrap stw"><div class="shead"><div><h2 class="serif">${S.final?'Final summary':'Statistics'}</h2><small>${sub}</small></div><div class="ib"><button class="ibtn" data-a="share" aria-label="Share result" title="Share result">${IC.share}</button><button class="ibtn" data-a="img" aria-label="Save as image" title="Save as image">${IC.img}</button><button class="ibtn" data-a="close" aria-label="Close" title="Close">${IC.x}</button></div></div>
+<div class="tbl"><table class="v"><thead>${head}</thead><tbody>${body}</tbody></table></div>${note?`<p class="note">${note}</p>`:''}
+<div class="acts2">${S.final?'<button data-a="resume">Keep playing</button>':`<button data-a="undo" ${S.rounds.length?'':'disabled'}>Undo last round</button>`}<button class="warn" data-a="menu">End / New game</button></div></div></div>`}
+function finale(){const {o,rank}=ranking();const tied=o.filter(i=>total(i)===total(o[0])),n=o.length,nf=fdone?' nf':'';
+return `<div class="sheet fin"><div class="wrap fw"><div class="ft"><div class="trophy${nf}">\uD83C\uDFC6</div><h2 class="serif">Final standings</h2><p class="sub">${tied.map(i=>esc(S.names[i])).join(' & ')} ${tied.length>1?'tie':'wins'} with ${total(o[0])}</p></div>
+<div class="fl${n>=6?' cp':''}">${o.map((i,k)=>{const s=stat(i),g=rank[i]<=3?' g'+rank[i]:'';return `<div class="fc${g}${nf}" data-p="${i}" style="animation-delay:${(1+k*.85).toFixed(2)}s"><span class="rk${g}">${rank[i]}</span><div class="pi"><div class="pn">${esc(S.names[i])}${rank[i]===1?' \uD83D\uDC51':''}</div><div class="ps">${s.w}\u2013${s.l} \u00B7 ${s.pct}% wins</div></div><b class="pt serif ${cls(total(i))}">${total(i)}</b></div>`}).join('')}</div>
+<div class="fa${nf}" style="animation-delay:${(1.2+n*.85).toFixed(2)}s">${cmBox(S.endCm,true)}<button class="cta" data-a="showsum">Show summary</button><div class="fi"><button data-a="share">${IC.share} Share</button><button data-a="img">${IC.img} Save image</button></div></div></div></div>`}
+function modal(){if(!menu)return'';return `<div class="mod" data-a="menuclose"><div class="card" role="dialog" aria-modal="true" aria-label="End or new game"><h3 class="serif" style="font-size:24px;margin:0 0 4px">Finish up?</h3><p class="note" style="margin:0 0 10px">Choose what happens to this game.</p>${S.final?'<button class="cta" data-a="resume">Keep playing</button>':'<button class="cta" data-a="end">End game &amp; see results</button>'}<button class="warn" data-a="newgo">Start a new game<small>Erases all rounds and scores</small></button><button data-a="menuclose">Cancel</button></div></div>`}
+const COL=['#f5c542','#8fb0ff','#ff7088','#3ddc97','#c9a0ff','#ffffff','#ff9f43'];let P=[],raf=0;const cv=document.getElementById('cf');
+function conf(x,y,n,ang,spr,pw){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+for(let k=0;k<n;k++){const a=ang+(Math.random()-.5)*spr,v=pw*(.4+Math.random()*.7);P.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,w:5+Math.random()*6,h:3+Math.random()*5,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:COL[k%COL.length],l:0})}
+if(!raf)raf=requestAnimationFrame(tick)}
+function tick(){if(cv.width!==innerWidth||cv.height!==innerHeight){cv.width=innerWidth;cv.height=innerHeight}
+const g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);P=P.filter(p=>p.y<cv.height+20&&p.l<260);
+for(const p of P){p.vx*=.985;p.vy=p.vy*.985+.28;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.l++;g.save();g.translate(p.x,p.y);g.rotate(p.r);g.fillStyle=p.c;g.globalAlpha=Math.min(1,(260-p.l)/60);g.fillRect(-p.w/2,-p.h/2,p.w,p.h);g.restore()}
+raf=P.length?requestAnimationFrame(tick):0}
+function startFinale(){fdone=false;const {o}=ranking(),W=innerWidth,H=innerHeight;
+conf(0,H*.7,70,-1,.7,17);conf(W,H*.7,70,-Math.PI+1,.7,17);setTimeout(()=>{if(S.finale)conf(W/2,H*.3,90,-Math.PI/2,Math.PI*1.2,12)},350);
+o.forEach((i,k)=>setTimeout(()=>{if(!S.finale)return;const e=document.querySelector('.fc[data-p="'+i+'"]');if(!e)return;const r=e.getBoundingClientRect();conf(r.left+r.width/2,r.top+r.height/2,k===0?80:40,-Math.PI/2,Math.PI*1.4,k===0?11:8);k===0?snd.end():snd.save()},1150+k*850));
+setTimeout(()=>{fdone=true},(1.8+o.length*.85)*1000)}
+function setupView(){const n=setup.n,p=setup.prog,m=setup.mode,l=setup.lang||'en';
+return `<main class="wrap" style="padding-bottom:32px"><h1 class="serif">Call Break</h1><p class="sub">Score pad for any number of players.</p>
+<div class="field"><span class="lab">Players</span><div class="stp"><button data-a="n-" aria-label="Fewer players">\u2212</button><span class="bid serif">${n}</span><button data-a="n+" aria-label="More players">+</button></div></div>
+<div class="field"><span class="lab">Game length</span><div class="seg mode"><button class="${m==='target'?'on':''}" data-a="mt">Target score</button><button class="${m==='endless'?'on':''}" data-a="me">Endless</button></div>
+${m==='target'?`<div style="margin-top:10px"><label class="lab" for="tg">Winning score</label><input id="tg" data-tg type="number" min="1" step="1" placeholder="31" value="${esc(setup.target)}"></div><p class="note">The first player to reach it is declared the winner. You can then end the game, set a higher target, or go endless.</p>`:'<p class="note">Play as long as you like. End the game any time from Stats.</p>'}</div>
+<div class="field"><span class="lab">Commentary</span><div class="seg mode"><button class="${l==='en'?'on':''}" data-a="sl-en">English</button><button class="${l==='hi'?'on':''}" data-a="sl-hi">हिन्दी</button><button class="${l==='off'?'on':''}" data-a="sl-off">Off</button></div><p class="note">A voice after every round: kind to winners, merciless to losers.</p></div>
+<label class="sw"><input type="checkbox" data-sw ${p?'checked':''}><span>Game already in progress<small>Enter the scores so far and carry on from there</small></span></label>
+${p?'<div class="hd"><span>Name</span><span>Score so far</span></div>':''}
+<div class="names">${Array.from({length:n},(_,i)=>`<div class="nrow${p?' sc':''}"><input data-name="${i}" maxlength="16" placeholder="Player ${i+1}" value="${esc(setup.names[i]||'')}" aria-label="Player ${i+1} name">${p?`<input data-score="${i}" type="number" step="1" placeholder="0" value="${esc(setup.starts[i]??'')}" aria-label="Player ${i+1} score so far">`:''}</div>`).join('')}</div>
+${p?`<div class="field"><label class="lab" for="off">Rounds already played</label><input id="off" data-off type="number" min="0" step="1" placeholder="0" value="${esc(setup.offset)}"></div>`:''}
+<button class="cta" data-a="start">${p?'Continue game':'Start game'}</button></main>`}
+const cap=()=>{const m={};document.querySelectorAll('.row[data-p]').forEach(e=>m[e.dataset.p]=e.getBoundingClientRect().top);return m};
+function anim(old){if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;let moved=false;
+document.querySelectorAll('.row[data-p]').forEach((e,k)=>{const o=old[e.dataset.p];if(o===undefined)return;const dy=o-e.getBoundingClientRect().top;if(Math.abs(dy)<8)return;moved=true;const up=dy>0;
+e.style.zIndex=up?6:1;
+const a=e.animate([{transform:`translateY(${dy}px) scale(1)`},{transform:`translateY(${dy*.45}px) scale(${up?1.05:.96})`,offset:.4},{transform:'translateY(0) scale(1)'}],{duration:950,delay:k*70,easing:'cubic-bezier(.22,.9,.28,1)',fill:'backwards'});
+e.classList.add(up?'rise':'fall');a.onfinish=()=>{e.style.zIndex=''};setTimeout(()=>e.classList.remove('rise','fall'),2400)});
+if(moved)snd.swoosh()}
+function render(){const old=flip?cap():null;flip=false;
+document.getElementById('app').innerHTML=(S.view==='setup'?setupView():game())+(S.view==='game'&&S.sheet?sheet():'')+(S.view==='game'?hitView():'')+(S.view==='game'&&S.finale?finale():'')+modal()+overlay();
+cmNew=false;if(stScroll){stScroll=false;const t=document.querySelector('.tbl');if(t)t.scrollTop=t.scrollHeight}if(old)anim(old);save()}
+function checkHit(){if(S.view!=='game'||S.final||S.hit||S.mode!=='target'||!S.rounds.length)return;
+const {o}=ranking();if(total(o[0])>=S.target){S.hit=true;nt='';ntErr='';snd.end();hap([60,40,60,40,140]);render()}}
+function act(a,i){
+if(a==='n-'&&setup.n>2)setup.n--;
+else if(a==='n+'&&setup.n<8)setup.n++;
+else if(a==='mt')setup.mode='target';
+else if(a==='me')setup.mode='endless';
+else if(a.startsWith('sl-'))setup.lang=a.slice(3);
+else if(a==='lang')S.lang=({en:'hi',hi:'off',off:'en'})[S.lang||'en'];
+else if(a==='start'){const n=setup.n,p=setup.prog;
+S=Object.assign(fresh(),{view:'game',names:Array.from({length:n},(_,k)=>(setup.names[k]||'').trim()||'Player '+(k+1)),
+start:Array.from({length:n},(_,k)=>p?(parseInt(setup.starts[k],10)||0):0),offset:p?Math.max(0,parseInt(setup.offset,10)||0):0,
+bids:Array(n).fill(1),res:Array(n).fill(null),
+mode:setup.mode,lang:setup.lang||'en',target:Math.max(1,parseInt(setup.target,10)||31)})}
+else if(a==='inc'&&S.bids[i]<13){S.bids[i]++;snd.tick();hap(10)}
+else if(a==='dec'&&S.bids[i]>0){S.bids[i]--;snd.tick();hap(10)}
+else if(a==='lock'){S.phase='result';S.res=S.names.map(()=>null);S.mv={};snd.lock();hap([30,40,30])}
+else if(a==='unlock'){S.phase='bid';S.res=S.names.map(()=>null)}
+else if(a==='win'){if(S.res[i]!==true){snd.win();hap(25)}S.res[i]=true}
+else if(a==='lose'){if(S.res[i]!==false){snd.lose();hap([50,40,50])}S.res[i]=false}
+else if(a==='saveRound'&&S.res.every(x=>x!==null)){const before=ranking().rank;
+const pl=ranking().o[0];S.rounds.push({bids:S.bids.slice(),res:S.res.slice()});S.rounds[S.rounds.length-1].cm=comment(pl);cmNew=true;S.bids=S.names.map(()=>1);S.res=S.names.map(()=>null);S.phase='bid';
+const after=ranking().rank;S.mv={};S.names.forEach((_,k)=>{S.mv[k]=before[k]-after[k]});
+flip=true;snd.save();hap(30);setTimeout(checkHit,1600)}
+else if(a==='stats'){stScroll=true;S.sheet=true;S.final=false;menu=false}
+else if(a==='close'){S.sheet=false;S.final=false;menu=false}
+else if(a==='menu'){menu=true}
+else if(a==='menuclose'){menu=false}
+else if(a==='showsum'){stScroll=true;S.finale=false;S.sheet=true}
+else if(a==='undo'){stScroll=true;S.rounds.pop();S.mv={};S.hit=false;flip=true}
+else if(a==='end'){menu=false;S.final=true;S.sheet=false;S.finale=true;fin=true;S.endCm=endLine();hap([60,40,60,40,140])}
+else if(a==='resume'){menu=false;S.final=false;S.finale=false;S.sheet=false;if(S.mode==='target'&&S.rounds.length){const {o}=ranking();if(total(o[0])>=S.target){S.hit=true;nt='';ntErr=''}}}
+else if(a==='hitEnd'){S.hit=false;S.final=true;S.sheet=false;S.finale=true;fin=true;S.endCm=endLine();hap([60,40,60,40,140])}
+else if(a==='hitSet'){const {o}=ranking(),top=total(o[0]);const def=Math.ceil((top+10)/10)*10;const v=parseInt(nt!==''?nt:def,10);
+if(!(v>top)){ntErr='Enter a score higher than '+top+'.'}else{S.target=v;S.hit=false;ntErr='';nt='';snd.save()}}
+else if(a==='hitInf'){S.mode='endless';S.hit=false;ntErr='';nt='';snd.save()}
+else if(a==='share'){share();return}
+else if(a==='img'){shot=draw().toDataURL('image/png')}
+else if(a==='shotclose'){shot=null}
+else if(a==='newgo'){menu=false;S=fresh()}
+render();if(fin){fin=false;startFinale()}}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&(b.tagName==='BUTTON'||e.target===b)){A();act(b.dataset.a,+b.dataset.i)}});
+document.addEventListener('input',e=>{const t=e.target,d=t.dataset||{};
+if(d.name!==undefined)setup.names[+d.name]=t.value;
+else if(d.score!==undefined)setup.starts[+d.score]=t.value;
+else if(d.off!==undefined)setup.offset=t.value;
+else if(d.tg!==undefined)setup.target=t.value;
+else if(d.nt!==undefined)nt=t.value;
+save()});
+document.addEventListener('change',e=>{if(e.target.dataset&&e.target.dataset.sw!==undefined){setup.prog=e.target.checked;render()}});
+load();menu=false;render();if(S.view==='game'&&S.finale)startFinale();
+</script></body></html>
